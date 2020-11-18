@@ -33,6 +33,7 @@ Route::middleware('admn:admin')->group(function () {
 
     Route::get('/advert-type', App\Http\Livewire\Advert\AdvertType::class)->name('advert.type.index');
     Route::get('/adverts-index', App\Http\Livewire\Advert\AdvertIndex::class)->name('advert.index');
+    Route::get('/program-index', App\Http\Livewire\Program\ProgramIndex::class)->name('program.index');
 });
 
 Route::get('/offline-index', App\Http\Livewire\Offline\Index::class)->name('offline.index');

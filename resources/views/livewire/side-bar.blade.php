@@ -48,6 +48,7 @@
             </ul>
           </nav>
           <!-- /.sidebar-menu -->
+          @livewire('auth.logout')
         </div>
         <!-- /.sidebar -->
       </aside>

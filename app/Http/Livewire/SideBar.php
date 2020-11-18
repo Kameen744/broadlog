@@ -26,7 +26,15 @@ class SideBar extends Component
                     ['name' => 'Adverts Type', 'route' => 'advert.type.index'],
                     ['name' => 'Adverts', 'route' => 'advert.index']
                 ],
+            ],
+            [
+                'title' => 'Programs',
+                'props' => [
+                    ['name' => 'Programs', 'route' => 'program.index'],
+                    ['name' => 'Programs Schedule', 'route' => 'program.index']
+                ],
             ]
+
         ];
     }
 

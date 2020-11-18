@@ -18,11 +18,12 @@ class CreateAdvertsTable extends Migration
             $table->string('client');
             $table->string('email');
             $table->string('phone_no');
-            $table->smallInteger('duration');
+            $table->string('source');
+            $table->bigInteger('duration');
             $table->integer('rate');
-            $table->smallInteger('slots');
-            $table->smallInteger('discount');
-            $table->smallInteger('commision');
+            $table->bigInteger('slots');
+            $table->bigInteger('discount');
+            $table->bigInteger('commision');
             $table->date('start_date');
             $table->date('finish_date');
             $table->unsignedBigInteger('advert_type_id');

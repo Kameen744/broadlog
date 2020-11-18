@@ -48,6 +48,7 @@
   </script>
   <!-- Bootstrap 4 -->
   <script src="{{ asset('admin-lite/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ asset('admin-lite/plugins/bs-custom-file-input/bs-custom-file-input.min.js') }}"></script>
   <!-- ChartJS -->
   <script src="{{ asset('admin-lite/plugins/chart.js/Chart.min.js') }}"></script>
   <!-- Sparkline -->
@@ -72,7 +73,7 @@
   <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
   {{-- <script src="{{ asset('admin-lite/js/dashboard.js') }}"></script> --}}
   <!-- AdminLTE for demo purposes -->
-  {{-- <script src="{{ asset('admin-lite/js/demo.js') }}"></script> --}}
+  <script src="{{ asset('admin-lite/js/demo.js') }}"></script>
   @livewireScripts
   @stack('scripts')
 </body>

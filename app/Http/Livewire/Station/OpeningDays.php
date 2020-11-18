@@ -16,7 +16,6 @@ class OpeningDays extends Component
 
     protected $paginationTheme = 'bootstrap';
     public $edit = null;
-    // protected $allDays;
 
     public $form = [
         'day'       => '',
@@ -32,7 +31,12 @@ class OpeningDays extends Component
 
     public function store()
     {
-        $this->ValidateRequest();
+        $this->validate([
+            'form.day'       => 'required|string|unique:opening_days,day',
+            'form.time_from' => 'required',
+            'form.time_to'   => 'required'
+        ]);
+
         Days::create($this->form);
         $this->ClearForm();
     }
@@ -47,10 +51,13 @@ class OpeningDays extends Component
 
     public function update(Days $day)
     {
-        // $this->authorize('update', $day);
+        $this->validate([
+            'form.day'       => 'required|string',
+            'form.time_from' => 'required',
+            'form.time_to'   => 'required'
+        ]);
 
-        $this->ValidateRequest();
-        $update = $day->update($this->form);
+        $day->update($this->form);
         $this->edit = null;
         $this->ClearForm();
         $this->render();
@@ -66,15 +73,6 @@ class OpeningDays extends Component
         $this->form['day'] = '';
         $this->form['time_from'] = '';
         $this->form['time_to'] = '';
-    }
-
-    public function ValidateRequest()
-    {
-        $this->validate([
-            'form.day'       => 'required|string|unique:opening_days,day',
-            'form.time_from' => 'required',
-            'form.time_to'   => 'required'
-        ]);
     }
 
     public function render()

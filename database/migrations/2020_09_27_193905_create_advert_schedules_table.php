@@ -17,12 +17,14 @@ class CreateAdvertSchedulesTable extends Migration
             $table->id();
             $table->date('play_date');
             $table->time('play_time');
+            $table->boolean('played')->default(0);
             $table->unsignedBigInteger('advert_id');
+            $table->unsignedBigInteger('file_id');
             $table->timestamps();
         });
 
         Schema::table('advert_schedules', function (Blueprint $table) {
-            $table->foreign('advert_id')->references('id')->on('adverts')->onDelete('cascade');
+            $table->foreign('file_id')->references('id')->on('advert_files')->onDelete('cascade');
         });
     }
 
