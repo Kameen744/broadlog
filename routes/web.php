@@ -1,6 +1,6 @@
 <?php
 
-
+use App\Http\Livewire\Offline\Index;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -34,6 +34,12 @@ Route::middleware('admn:admin')->group(function () {
     Route::get('/advert-type', App\Http\Livewire\Advert\AdvertType::class)->name('advert.type.index');
     Route::get('/adverts-index', App\Http\Livewire\Advert\AdvertIndex::class)->name('advert.index');
     Route::get('/program-index', App\Http\Livewire\Program\ProgramIndex::class)->name('program.index');
+    Route::get('/program-schedule', App\Http\Livewire\Program\ProgramScheduleCom::class)->name('program.schedule');
+
+    // Reports
+    Route::get('/media-order', App\Http\Livewire\Reports\MediaOrder::class)->name('media.order');
+    Route::get('/media/{logs}', 'App\Http\Controllers\Reports\MediaOrderController@download')->name('media');
+    Route::get('/log', App\Http\Livewire\Log\LogIndex::class)->name('log.index');
 });
 
 Route::get('/offline-index', App\Http\Livewire\Offline\Index::class)->name('offline.index');

@@ -3,7 +3,7 @@
     <aside class="main-sidebar elevation-4 sidebar-dark-navy">
         <!-- Brand Logo -->
         <a href="{{ route('admin.dashboard') }}" class="brand-link">
-          <img src="{{ asset('images/logo.png') }}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
+          <img src="{{ asset('images/logo.png') }}" alt="BroadMedia Logo" class="brand-image img-circle elevation-3"
                style="opacity: .8">
         <span class="brand-text font-weight-light">{{env('APP_NAME')}}</span>
         </a>
@@ -37,7 +37,7 @@
                         @foreach ($link['props'] as $sublink)
                             <li class="nav-item">
                                 <a href="{{ route($sublink['route']) }}" class="nav-link">
-                                    <i class="fas fa-link nav-icon"></i>
+                                    <i class="{{$sublink['icon']}} nav-icon"></i>
                                     <p>{{$sublink['name']}}</p>
                                 </a>
                             </li>
@@ -48,6 +48,7 @@
             </ul>
           </nav>
           <!-- /.sidebar-menu -->
+          <hr>
           @livewire('auth.logout')
         </div>
         <!-- /.sidebar -->

@@ -17,24 +17,28 @@ class SideBar extends Component
             [
                 'title' => 'Station',
                 'props' => [
-                    ['name' => 'Opening Days', 'route' => 'opening.days.index']
+                    ['name' => 'Opening Days', 'route' => 'opening.days.index', 'icon' => 'fas fa-door-open']
                 ]
             ],
             [
                 'title' => 'Adverts',
                 'props' => [
-                    ['name' => 'Adverts Type', 'route' => 'advert.type.index'],
-                    ['name' => 'Adverts', 'route' => 'advert.index']
+                    ['name' => 'Adverts Type', 'route' => 'advert.type.index', 'icon' => 'fas fa-id-badge'],
+                    ['name' => 'Adverts', 'route' => 'advert.index', 'icon' => 'fas fa-calendar']
                 ],
             ],
             [
                 'title' => 'Programs',
                 'props' => [
-                    ['name' => 'Programs', 'route' => 'program.index'],
-                    ['name' => 'Programs Schedule', 'route' => 'program.index']
+                    ['name' => 'Programs', 'route' => 'program.index', 'icon' => 'fas fa-procedures']
+                ],
+            ],
+            [
+                'title' => 'Digital Log',
+                'props' => [
+                    ['name' => 'Players/Log', 'route' => 'log.index', 'icon' => 'fas fa-stack']
                 ],
             ]
-
         ];
     }
 

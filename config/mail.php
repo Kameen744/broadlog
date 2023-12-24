@@ -34,42 +34,54 @@ return [
     */
 
     'mailers' => [
+        // Working Settings ^
+        // 'smtp' => [
+        //     'transport' => 'smtp',
+        //     'host' => env('MAIL_HOST', 'smtp.sendgrid.net'),
+        //     'port' => env('MAIL_PORT',  587),
+        //     'encryption' => env('MAIL_ENCRYPTION', 'tls'),
+        //     'username' => env('MAIL_USERNAME', 'apikey'),
+        //     'password' => env('MAIL_PASSWORD', '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'),
+        //     'timeout' => null,
+        //     'auth_mode' => null,
+        // ],
+
         'smtp' => [
             'transport' => 'smtp',
-            'host' => env('MAIL_HOST', 'in-v3.mailjet.com'),
-            'port' => env('MAIL_PORT', 587),
-            'encryption' => env('MAIL_ENCRYPTION', 'tls'),
-            'username' => env('MAIL_USERNAME', '7bcb1ef9b3c3b2bf87002f2f6c97aa3a'),
-            'password' => env('MAIL_PASSWORD', 'a6eceaf90a4c178c38d2aaaa7cc11368'),
+            'host' => env('MAIL_HOST', 'mail.visionfm.ng'),
+            'port' => env('MAIL_PORT',  26),
+            // 'encryption' => env('MAIL_ENCRYPTION', 'tls'),
+            'username' => env('MAIL_USERNAME', 'kamal@visionfm.ng'),
+            'password' => env('MAIL_PASSWORD', 'kameen744'),
             'timeout' => null,
             'auth_mode' => null,
         ],
 
-        'ses' => [
-            'transport' => 'ses',
-        ],
+        // 'ses' => [
+        //     'transport' => 'ses',
+        // ],
 
-        'mailgun' => [
-            'transport' => 'mailgun',
-        ],
+        // 'mailgun' => [
+        //     'transport' => 'mailgun',
+        // ],
 
-        'postmark' => [
-            'transport' => 'postmark',
-        ],
+        // 'postmark' => [
+        //     'transport' => 'postmark',
+        // ],
 
-        'sendmail' => [
-            'transport' => 'sendmail',
-            'path' => '/usr/sbin/sendmail -bs',
-        ],
+        // 'sendmail' => [
+        //     'transport' => 'sendmail',
+        //     'path' => '/usr/sbin/sendmail -bs',
+        // ],
 
-        'log' => [
-            'transport' => 'log',
-            'channel' => env('MAIL_LOG_CHANNEL'),
-        ],
+        // 'log' => [
+        //     'transport' => 'log',
+        //     'channel' => env('MAIL_LOG_CHANNEL'),
+        // ],
 
-        'array' => [
-            'transport' => 'array',
-        ],
+        // 'array' => [
+        //     'transport' => 'array',
+        // ],
     ],
 
     /*
@@ -84,7 +96,7 @@ return [
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'broadmedia.ng@gmail.com'),
+        'address' => env('MAIL_FROM_ADDRESS', 'kamal@visionfm.ng'),
         'name' => env('MAIL_FROM_NAME', 'Broad Media'),
     ],
 
@@ -108,3 +120,5 @@ return [
     ],
 
 ];
+
+// Using sendgrid for mail

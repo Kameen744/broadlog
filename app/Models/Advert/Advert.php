@@ -29,4 +29,13 @@ class Advert extends Model
     {
         return $this->hasMany(AdvertSchedule::class);
     }
+
+    public function adDuration()
+    {
+        if ($this->duration > 60) {
+            return $this->duration / 60 . ' Min';
+        } else {
+            return $this->duration . ' Sec';
+        }
+    }
 }

@@ -2,11 +2,13 @@
 
 namespace App\Http\Livewire\Advert;
 
+use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Advert\Advert;
 use App\Models\Advert\AdvertFile;
 use App\Models\Advert\AdvertType;
+use Barryvdh\DomPDF\Facade as PDF;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Advert\AdvertSchedule;
 
@@ -27,11 +29,16 @@ class AdvertIndex extends Component
     public $advert = null;
     public $viewingAdvert = null;
     public $c_schedules = null;
+    public $currentPage = 'index';
     // public $editFile = null;
+    public $todaySchedules;
+    public $today;
 
     public $discount = '%';
     public $commission = '%';
     public $seconds = 'Seconds';
+
+    public $searchAdvertScheduleText = '';
 
     public $form = [
         'client'            => '',
@@ -43,6 +50,7 @@ class AdvertIndex extends Component
         'slots'             => '',
         'discount'          => '',
         'commision'         => '',
+        'paid'              => '',
         'start_date'        => '',
         'finish_date'       => '',
         'advert_type_id'    => ''
@@ -55,8 +63,24 @@ class AdvertIndex extends Component
         $this->toSeconds();
         $advert = Advert::create($this->form);
         $this->advert = $advert;
+
+        $this->emit('plashMessage', [
+            'type' => 'success',
+            'message' => 'Advert successfully saved.'
+        ]);
+
         $this->emit('advertSaved');
         $this->emit('addFileEvent', $advert);
+    }
+
+    public function newAdvert()
+    {
+        if($this->edit) {
+            $this->edit = null;
+            $this->clearForm();
+        }
+
+        $this->currentPage = 'new';
     }
 
     public function newAdvertCreated()
@@ -79,9 +103,12 @@ class AdvertIndex extends Component
         $this->form['slots']             = $advert->slots;
         $this->form['discount']          = $advert->discount;
         $this->form['commision']         = $advert->commision;
+        $this->form['paid']              = $advert->paid;
         $this->form['start_date']        = $advert->start_date;
         $this->form['finish_date']       = $advert->finish_date;
         $this->form['advert_type_id']    = $advert->advert_type_id;
+
+        $this->currentPage = 'new';
     }
 
     public function editFile($file_id)
@@ -105,6 +132,7 @@ class AdvertIndex extends Component
         $this->viewingAdvert = $advert;
         $this->newFileUploaded($advert->id);
         $this->getCurrentSchedules($advert->id);
+        $this->currentPage = 'view';
         $this->render();
     }
 
@@ -117,6 +145,12 @@ class AdvertIndex extends Component
     {
         $this->ValidateRequest();
         $advert->update($this->form);
+
+        $this->emit('plashMessage', [
+            'type' => 'success',
+            'message' => 'Advert successfully updated'
+        ]);
+
         $this->emit('advertUpdated');
         $this->render();
     }
@@ -129,6 +163,11 @@ class AdvertIndex extends Component
     public function delete(Advert $advert)
     {
         $advert->delete();
+        AdvertSchedule::where('advert_id', $advert->id)->delete();
+        $this->emit('plashMessage', [
+            'type' => 'error',
+            'message' => 'Advert deleted'
+        ]);
         $this->render();
     }
 
@@ -138,6 +177,10 @@ class AdvertIndex extends Component
         if (file_exists($file_path)) {
             unlink($file_path);
             $file->delete();
+            $this->emit('plashMessage', [
+                'type' => 'error',
+                'message' => $file->file . ' deleted.'
+            ]);
             $this->newFileUploaded($file->advert_id);
         }
     }
@@ -158,6 +201,7 @@ class AdvertIndex extends Component
         $this->form['slots']             = '';
         $this->form['discount']          = '';
         $this->form['commision']         = '';
+        $this->form['paid']              = '';
         $this->form['start_date']        = '';
         $this->form['finish_date']       = '';
         $this->form['advert_type_id']    = '';
@@ -190,6 +234,7 @@ class AdvertIndex extends Component
             'form.slots'             => 'required|numeric',
             'form.discount'          => 'required|numeric',
             'form.commision'         => 'required|numeric',
+            'form.paid'              => 'required|numeric',
             'form.start_date'        => 'required|date',
             'form.finish_date'       => 'required|date',
             'form.advert_type_id'    => 'required|numeric'
@@ -232,10 +277,14 @@ class AdvertIndex extends Component
     {
         if ($value === 'commision') {
             $amount = $this->getAdvertTotalAmount();
-            return ($this->form['commision'] / $amount) * 100;
+            if ($this->form['commision'] > 0) {
+                return ($this->form['commision'] / $amount) * 100;
+            }
         } elseif ($value === 'discount') {
             $amount = $this->getAdvertTotalAmount();
-            return ($this->form['discount'] / $amount) * 100;
+            if ($this->form['discount'] > 0) {
+                return ($this->form['discount'] / $amount) * 100;
+            }
         }
     }
 
@@ -294,6 +343,78 @@ class AdvertIndex extends Component
     public function toMinutes()
     {
         return $this->form['duration'] / 60;
+    }
+    // View advert schedule
+    public function viewAdvertSchedule()
+    {
+        // $this->now =  date_format(now(), 'h:i A');
+        $this->today = date_format(now(), 'D d-m-Y');
+        $today = date_format(now(), 'Y-m-d');
+        $this->getAdvertSchedule($today);
+        $this->currentPage = 'viewSchedule';
+        // $this->emit('viewTodayAdvertSchedules');
+    }
+
+    public function getAdvertSchedule($date) {
+        $this->todaySchedules = AdvertSchedule::where('play_date', $date)
+            ->where('status', 1)
+            ->orderBy('play_time', 'asc')
+            ->get();
+    }
+
+    public function saveSchedulesPDF()
+    {
+        if ($this->todaySchedules) {
+            $today = date_format(now(), 'Y-m-d');
+            $path = public_path('adverts/reports');
+            $fileName =  env('STATION_NAME') . env('STATION_LOCATION') . 'Schedule' . $today . '.pdf';
+
+            $pdf = PDF::loadView(
+                'reports.adverts.advert-schedule',
+                [
+                    'schedules' => $this->todaySchedules,
+                    'today' => $this->today
+                ]
+            );
+
+            $pdf->save($path . '/' . $fileName);
+            return response()->download($path . '/' . $fileName);
+        } else {
+            $this->emit('plashMessage', [
+                'type' => 'warning',
+                'message' => 'No record found.'
+            ]);
+        }
+    }
+
+    public function genInvoice()
+    {
+
+    }
+
+    public function genCot()
+    {
+
+    }
+
+    public function searchSchedules()
+    {
+        if(!empty($this->searchAdvertScheduleText)) {
+            $date = Carbon::createFromFormat('Y-m-d', $this->searchAdvertScheduleText);
+            $this->today = date_format($date, 'D d-m-Y');
+
+            $this->getAdvertSchedule($this->searchAdvertScheduleText);
+        } else {
+            $this->emit('plashMessage', [
+                'type' => 'warning',
+                'message' => 'Select date to search for schedule'
+            ]);
+        }
+    }
+
+    public function changePage($page)
+    {
+        $this->currentPage = $page;
     }
 
     public function render()

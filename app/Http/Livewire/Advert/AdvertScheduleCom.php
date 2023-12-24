@@ -2,12 +2,13 @@
 
 namespace App\Http\Livewire\Advert;
 
-use App\Models\Advert\Advert;
 use Carbon\Carbon;
 use Livewire\Component;
 use Carbon\CarbonPeriod;
+use App\Models\Advert\Advert;
 use App\Models\Advert\AdvertFile;
 use App\Models\Advert\AdvertSchedule;
+use App\Models\Program\ProgramSchedule;
 
 class AdvertScheduleCom extends Component
 {
@@ -37,7 +38,8 @@ class AdvertScheduleCom extends Component
     public function mount()
     {
         if ($this->advert) {
-            $this->files =  AdvertFile::latest()->where('advert_id', $this->advert['id'])->get();
+            $this->files  =  AdvertFile::latest()->where('advert_id', $this->advert['id'])->get();
+
             $period = CarbonPeriod::create($this->advert['start_date'], $this->advert['finish_date']);
 
             $p = [];
@@ -75,19 +77,83 @@ class AdvertScheduleCom extends Component
         $this->updateCurrentSchedules();
     }
 
+    public function scheduleAdvert($schedule = null)
+    {
+        if ($this->c_ad_date === 'Select day') {
+            $this->emit('plashMessage', [
+                'type' => 'warning',
+                'message' => 'Please select day'
+            ]);
+
+            return false;
+        }
+        $c_file = AdvertFile::find($this->c_ad_file_id);
+
+        if ($schedule === 'new') {
+            if (!$this->checkIfExist()) {
+                AdvertSchedule::create([
+                    'play_date' => $this->c_ad_date,
+                    'play_time' => $this->c_ad_time,
+                    'advert_id' => $this->advert['id'],
+                    'file_id'   => $this->c_ad_file_id
+                ]);
+
+                $this->emit('plashMessage', [
+                    'type'      => 'success',
+                    'message'   => $c_file->name . ' successfully scheduled to play on ' . $this->c_ad_date . ' ' . $this->c_ad_time
+                ]);
+
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            $schedule->update([
+                'play_date' => $this->c_ad_date,
+                'play_time' => $this->c_ad_time,
+                'advert_id' => $this->advert['id'],
+                'file_id'   => $this->c_ad_file_id
+            ]);
+            return true;
+        }
+    }
+
+    public function checkIfExist()
+    {
+        $advert = AdvertSchedule::where('play_date', $this->c_ad_date)
+            ->where('play_time', $this->c_ad_time)
+            ->count();
+        $program = ProgramSchedule::where('time_from', $this->c_ad_time)
+            ->count();
+
+        if (!$advert & !$program) {
+            return false;
+        } else {
+            $this->emit('plashMessage', [
+                'type'      => 'error',
+                'message'   => ' Time selected is not available.'
+            ]);
+            return true;
+        }
+    }
+
     public function store()
     {
+        if ($this->c_ad_date === 'Select day') {
+            $this->emit('plashMessage', [
+                'type' => 'warning',
+                'message' => ' Please select day'
+            ]);
+
+            return;
+        }
+
         $this->validateRequest();
 
-        AdvertSchedule::create([
-            'play_date' => $this->c_ad_date,
-            'play_time' => $this->c_ad_time,
-            'advert_id' => $this->advert['id'],
-            'file_id'   => $this->c_ad_file_id
-        ]);
-
-        $this->updateBookedSlots();
-        $this->updateCurrentSchedules();
+        if ($this->scheduleAdvert('new')) {
+            $this->updateBookedSlots();
+            $this->updateCurrentSchedules();
+        }
     }
 
     public function edit(AdvertSchedule $schedule)
@@ -126,15 +192,11 @@ class AdvertScheduleCom extends Component
     public function update(AdvertSchedule $schedule)
     {
         $this->validateRequest();
-        $schedule->update([
-            'play_date' => $this->c_ad_date,
-            'play_time' => $this->c_ad_time,
-            'advert_id' => $this->advert['id'],
-            'file_id'   => $this->c_ad_file_id
-        ]);
-        $this->edit = null;
-        $this->c_ad_date = 'Select day';
-        $this->updateCurrentSchedules();
+        if ($this->scheduleAdvert($schedule)) {
+            $this->edit = null;
+            $this->c_ad_date = 'Select day';
+            $this->updateCurrentSchedules();
+        }
     }
 
     public function delete(AdvertSchedule $schedule)
@@ -149,9 +211,23 @@ class AdvertScheduleCom extends Component
     {
         $booked_slots = AdvertSchedule::where('play_date', $this->c_ad_date)
             ->where('advert_id', $this->advert['id'])
+            ->where('status', 1)
             ->count();
         $booked_date = strtotime($this->c_ad_date);
         $this->form[$booked_date] = $booked_slots;
+    }
+
+    public function updateActive(AdvertSchedule $schedule)
+    {
+        if ($schedule->status) {
+            $schedule->update(['status' => 0]);
+            $this->updateBookedSlots();
+            $this->updateCurrentSchedules();
+        } else {
+            $schedule->update(['status' => 1]);
+            $this->updateBookedSlots();
+            $this->updateCurrentSchedules();
+        }
     }
 
     public function updateCurrentSchedules()

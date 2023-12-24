@@ -1,5 +1,5 @@
 <div class="modal fade" id="addFilesModal" wire:ignore.self>
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header py-1 px-3">
                 <h4 class="modal-title p-0">Add Files</h4>
@@ -49,7 +49,7 @@
                             <div class="row d-flex justify-content-end px-2">
                                     @if ($editFile)
                                             <button type="submit" class="btn btn-dark btn-sm" id="updateFile">
-                                        Update File
+                                        <i class="fas fa-edit"></i> Update File
                                         @else
                                             <button type="submit" class="btn btn-dark btn-sm" id="saveFile">
                                         <i class="fas fa-file-audio"></i> Add File
@@ -70,8 +70,8 @@
                                 <tbody>
                                    @foreach ($files as $file)
                                         <tr>
-                                            <td>{{$file->name}}</td>
-                                            <td>
+                                            <td class="py-1">{{$file->name}}</td>
+                                            <td class="py-1">
                                             <div class="btn-group">
                                                 <button type="button" class="btn btn-info btn-sm btn-sm playAddvertSample"
                                                  value="{{asset('/adverts/uploads/' .$file->file)}}">
@@ -102,7 +102,8 @@
                        </div>
                    </div>
                    <div class="row d-flex justify-content-between px-2">
-                    <button type="button" class="btn btn-dark btn-sm" data-dismiss="modal" wire:click="filesAddFinished">Finish</button>
+                    <button type="button" class="btn btn-dark btn-sm" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-dark btn-sm" data-dismiss="modal" wire:click="filesAddFinished">Proceed to advert schedule</button>
                     </button>
                 </div>
                 </div>

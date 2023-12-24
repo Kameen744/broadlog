@@ -30,6 +30,7 @@
     <link rel="stylesheet" href="{{ asset('admin-lite/plugins/daterangepicker/daterangepicker.css') }}">
     <!-- summernote -->
     <link rel="stylesheet" href="{{ asset('admin-lite/plugins/summernote/summernote-bs4.css') }}">
+    <link rel="stylesheet" href="{{ asset('admin-lite/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css') }}">
     @laravelPWA
     @livewireStyles
     @stack('styles')
@@ -37,7 +38,11 @@
 <body class="hold-transition sidebar-mini layout-fixed">
     {{-- {{$slot}} --}}
     @yield('content')
-
+    {{-- @if (session()->has('message'))
+        <div class="alert alert-success">
+            {{ session('message') }}
+        </div>
+    @endif --}}
     <!-- jQuery -->
   <script src="{{ asset('admin-lite/plugins/jquery/jquery.min.js') }}"></script>
   <!-- jQuery UI 1.11.4 -->
@@ -67,14 +72,34 @@
   <script src="{{ asset('admin-lite/plugins/summernote/summernote-bs4.min.js') }}"></script>
   <!-- overlayScrollbars -->
   <script src="{{ asset('admin-lite/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js') }}"></script>
+  <script src="{{ asset('admin-lite/plugins/sweetalert2/sweetalert2.min.js') }}"></script>
   <!-- AdminLTE App -->
   <script src="{{ asset('admin-lite/js/adminlte.min.js') }}"></script>
   <script src="{{ asset('admin-lite/js/pickaday.js') }}"></script>
   <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
   {{-- <script src="{{ asset('admin-lite/js/dashboard.js') }}"></script> --}}
   <!-- AdminLTE for demo purposes -->
+  {{-- <script src="{{ asset('admin-lite/plugins/bootstrap-switch/js/bootstrap-switch.min.js') }}"></script> --}}
   <script src="{{ asset('admin-lite/js/demo.js') }}"></script>
   @livewireScripts
+  <script>
+      $(document).ready(function() {
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 5000
+        });
+
+        Livewire.on('plashMessage', function(data) {
+            Toast.fire({
+                icon: data.type,
+                title: data.message
+            });
+        });
+
+      });
+  </script>
   @stack('scripts')
 </body>
 </html>

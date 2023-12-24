@@ -79,9 +79,9 @@
                             <div class="col-md-4">
                                 <button type="submit" class="btn btn-dark btn-sm">
                                     @if ($edit)
-                                        Update Day
+                                        <i class="fas fa-edit"> </i> Update Day
                                         @else
-                                        Add Day
+                                        <i class="fas fa-plus"></i> Add Day
                                     @endif
                                 </button>
                             </div>
@@ -147,7 +147,7 @@
     </div>
     {{-- edit form modal --}}
     <div class="modal fade" id="modal-secondary">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content bg-secondary">
             <div class="modal-header">
               <h4 class="modal-title">Secondary Modal</h4>

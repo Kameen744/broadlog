@@ -9,6 +9,7 @@
 <div class="wrapper">
    <!-- Navbar -->
   <nav class="main-header navbar navbar-expand-md navbar-light navbar-white">
+    {{-- <div class="container" wire:poll.10000ms.keep-alive="LoadScheduledAdverts"> --}}
     <div class="container">
       <a href="{{ route('user.dashboard') }}" class="navbar-brand">
         <img src="{{ asset('images/logo.png') }}" style="width:60px; height:60px;" alt="BroadMedia" class="brand-image img-circle elevation-3"
@@ -22,69 +23,37 @@
 
       <div class="collapse navbar-collapse order-3" id="navbarCollapse">
         <!-- Left navbar links -->
-        <ul class="navbar-nav">
-          <li class="nav-item">
-            <a href="index3.html" class="nav-link">Home</a>
+        <ul class="navbar-nav ml-auto">
+          @if ($now)
+          <li class="nav-item ml-auto pb-2 pt-3 mr-2">
+            <button class="btn btn-sm {{ $notificationsOn ? 'btn-success' : 'btn-danger'}}" wire:click="toggleNotifications">
+               <i class="fas fa-bell"></i> | {{ $notificationsOn ? 'Notifications ON' : 'Notifications OFF' }}
+            </button>
           </li>
-          <li class="nav-item">
-            <a href="#" class="nav-link">Contact</a>
+          <li class="nav-item ml-auto pb-2 pt-3">
+            <button class="btn btn-sm {{ $autoPlay ? 'btn-success' : 'btn-danger'}}" wire:click="toggleAutoPlay">
+               <i class="fas fa-play"></i> | {{ $autoPlay ? 'Auto-Play ON' : 'Auto-Play OFF' }}
+            </button>
           </li>
-          <li class="nav-item dropdown">
-            <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle">Dropdown</a>
-            <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
-              <li><a href="#" class="dropdown-item">Some action </a></li>
-              <li><a href="#" class="dropdown-item">Some other action</a></li>
-
-              <li class="dropdown-divider"></li>
-
-              <!-- Level two dropdown-->
-              <li class="dropdown-submenu dropdown-hover">
-                <a id="dropdownSubMenu2" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-item dropdown-toggle">Hover for action</a>
-                <ul aria-labelledby="dropdownSubMenu2" class="dropdown-menu border-0 shadow">
-                  <li>
-                    <a tabindex="-1" href="#" class="dropdown-item">level 2</a>
-                  </li>
-
-                  <!-- Level three dropdown-->
-                  <li class="dropdown-submenu">
-                    <a id="dropdownSubMenu3" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-item dropdown-toggle">level 2</a>
-                    <ul aria-labelledby="dropdownSubMenu3" class="dropdown-menu border-0 shadow">
-                      <li><a href="#" class="dropdown-item">3rd level</a></li>
-                      <li><a href="#" class="dropdown-item">3rd level</a></li>
-                    </ul>
-                  </li>
-                  <!-- End Level three -->
-
-                  <li><a href="#" class="dropdown-item">level 2</a></li>
-                  <li><a href="#" class="dropdown-item">level 2</a></li>
-                </ul>
-              </li>
-              <!-- End Level two -->
-            </ul>
+          <li class="nav-item ml-auto pb-2 pt-3">
+            <a href="#" class="nav-link text-primary h6" wire:poll.10000ms.keep-alive="LoadScheduledAdverts">
+                {{$today}} | {{$now}}
+            </a>
           </li>
+          <li class="nav-item ml-auto pb-2 pt-3">
+            @livewire('auth.logout')
+          </li>
+          @endif
         </ul>
-
-        <!-- SEARCH FORM -->
-        <form class="form-inline ml-0 ml-md-3">
-          <div class="input-group input-group-sm">
-            <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search">
-            <div class="input-group-append">
-              <button class="btn btn-navbar" type="submit">
-                <i class="fas fa-search"></i>
-              </button>
-            </div>
-          </div>
-        </form>
       </div>
-
     </div>
   </nav>
 
     <div class="row">
         <div class="col-md-12 p-2 px-3">
             <div class="card">
-                <div class="card-body p-2" style="max-height: 80vh; overflow: auto;">
-                    <div class="row d-flex justify-content-center">
+                <div class="card-body border-0 shadow-none p-2" style="max-height: 80vh; overflow: auto;">
+                    <div class="row d-flex">
                         @foreach ($schedules as $key => $schedule)
                             @if ($schedule->played)
                                 <button class="btn btn-info m-2" disabled>
@@ -98,8 +67,8 @@
                                 wire:click="play({{$schedule->id}})" wire:ignore>
 
                                 <i class="fas play-icon-{{$schedule->id}} fa-play"></i>
-                                <h6 class="time-{{$schedule->id}}">{{ date('h:i A', strtotime($schedule->play_time)) }}</h6>
-
+                                <h5 class="time-{{$schedule->id}}">{{ date('h:i A', strtotime($schedule->play_time)) }}</h5>
+                                <small>{{ $schedule->file->name }}</small>
                                 <progress class="bar-{{$schedule->id}}" value="0" max="100" style="width:100%"></progress>
                                 <audio src="{{asset('/adverts/uploads/' .$schedule->file->file)}}" id="player-{{$schedule->id}}"></audio>
                             </button>
@@ -107,71 +76,138 @@
                         @endforeach
                     </div>
                 </div>
-                <div class="card-footer text-muted">
+                {{-- <div class="card-footer text-muted border-0 shadow-none">
                     Footer
-                </div>
+                </div> --}}
             </div>
         </div>
     </div>
 </div>
 @push('scripts')
     <script>
-        $(document).ready(function() {
-            $('.hold-transition').addClass('layout-top-nav');
-            $('.hold-transition').removeClass('sidebar-mini');
+        document.addEventListener('livewire:load', function () {
+            try {
+                var notify;
+                var logolink = "https://broadlog.dev/images/logo.png";
+                var showNotification = function () {
+                    if (!("Notification" in window)) {
+                        alert("This browser does not support desktop notification");
+                    }
+                    notify = new Notification("Advert Notification", {
+                        body: @this.notifyName + ' to be played on ' + @this.notifyTimeToPlay,
+                        icon: logolink,
+                    });
 
-            Livewire.on('PlayingNow', function(sch) {
-                togglePlay(sch.id)
-            });
-
-            var togglePlay = function(elmId)
-            {
-                let pBtn = $('.play-icon-' + elmId);
-                let pBar = $('.bar-'  + elmId);
-                let player = document.getElementById('player-' + elmId);
-
-                if(player.paused) {
-                    player.play();
-                    pBtn.removeClass('fa-play');
-                    pBtn.addClass('fa-pause');
-                    advance(player.duration, pBtn, pBar, player, elmId);
-                } else {
-                    player.pause();
-                    advance(player.duration, pBtn, pBar, player, false);
+                    notify.onclick = function() {
+                        @this.suspendNotification();
+                    }
                 }
-            }
 
+                function createNotification() {
+                    notify = new Notification('BroadLog', {
+                        body: 'Loaded successfully',
+                        icon: logolink,
+                    });
+                }
 
-            var advance = function(duration, pBtn, pBar, player, play) {
-                pBar.attr('max', duration);
-                $('#tTime-'+play).html(Math.ceil(duration));
-                $('.play-'+play).removeClass('btn-danger');
-                $('.play-'+play).addClass('btn-primary');
-                var percent = 0;
+                if(Notification.permission != 'granted') {
+                    Notification.requestPermission();
+                    createNotification();
+                } else {
+                    createNotification();
+                }
 
-                var timer = setInterval(() => {
-                    if(percent < duration) {
-                        percent = player.currentTime;
-                        $('#duration-'+play).html(Math.ceil(percent));
-                        pBar.val(percent);
+                $('.hold-transition').addClass('layout-top-nav');
+                $('.hold-transition').removeClass('sidebar-mini');
+
+                Livewire.on('PlayingNow', function(schedule) {
+                    togglePlay(schedule.id)
+                    @this.setAdvertPlayingVolume();
+                });
+
+                Livewire.on('PlayingNext', function(schedule) {
+                    // console.log('playing next now...');
+                    if(Notification.permission === 'granted') {
+                        showNotification();
                     } else {
+                        Notification.requestPermission().then(permission => {
+                            if(permission === 'granted') {
+                                showNotification();
+                            }
+                        });
+                    }
+                });
+                // var schedules = @this.schedules;
+                var togglePlay = function(elmId)
+                {
+                    let pBtn = $('.play-icon-' + elmId);
+                    let pBar = $('.bar-'  + elmId);
+                    let player = document.getElementById('player-' + elmId);
+
+                    if(player.paused) {
+                        player.play();
+                        pBtn.removeClass('fa-play');
+                        pBtn.addClass('fa-pause');
+                        advance(player.duration, pBtn, pBar, player, elmId);
+                    } else {
+                        player.pause();
+                        advance(player.duration, pBtn, pBar, player, false);
+                    }
+                }
+
+                var advance = function(duration, pBtn, pBar, player, play) {
+                    pBar.attr('max', duration);
+                    $('#tTime-'+play).html(Math.ceil(duration));
+                    $('.play-'+play).removeClass('btn-danger');
+                    $('.play-'+play).addClass('btn-primary');
+                    var percent = 0;
+
+                    var timer = setInterval(() => {
+                        if(percent < duration) {
+                            percent = player.currentTime;
+                            $('#duration-'+play).html(Math.ceil(percent));
+                            pBar.val(percent);
+                        } else {
+                            stopTimer();
+                        }
+                    }, 1000);
+
+                    if(play == false) {
                         stopTimer();
                     }
-                }, 1000);
 
-                if(!play) {
-                    stopTimer();
+                    function stopTimer() {
+                        @this.endNowPlaying();
+                        clearInterval(timer);
+                        pBtn.removeClass('fa-pause');
+                        pBtn.addClass('fa-play');
+                        $('.play-'+play).removeClass('btn-primary');
+                        $('.play-'+play).addClass('btn-info');
+                        $('.play-'+play).attr("disabled", true);
+                        $('.bar-'+play).remove();
+                    }
                 }
+                // var loadScheduledAdvertsAndCheckPlayTime = function() {
+                //     @this.LoadScheduledAdverts();
+                //     checkTime();
+                // }
 
-                function stopTimer() {
-                    clearInterval(timer);
-                    pBtn.removeClass('fa-pause');
-                    pBtn.addClass('fa-play');
-                    $('.play-'+play).removeClass('btn-primary');
-                    $('.play-'+play).addClass('btn-info');
-                    $('.play-'+play).attr("disabled", true);
-                    $('.bar-'+play).remove();
-                }
+                // var checkTime = function() {
+                //     setTimeout(() => {
+                //         loadScheduledAdvertsAndCheckPlayTime();
+                //     }, 10000);
+                // }
+
+                // checkTime();
+                // try {
+                //     setInterval(() => {
+                //         @this.LoadScheduledAdverts();
+                //     }, 10000);
+                // } catch (updateError) {
+                //     // console.log(updateError);
+                // }
+            } catch (error) {
+                // console.log(error);
             }
         });
     </script>

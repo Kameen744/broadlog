@@ -34,12 +34,17 @@ class AdvertPlayed extends Notification implements ShouldQueue
         $this->slots = $allSlots->count();
         $this->total_played = $allSlots->where('played', 1)->count();
         $this->name = $file->name;
-        $this->date_played = date('d-m-Y', strtotime($schedule->play_date));
-        $this->time_played = date('h:i A', strtotime($schedule->play_time));
+        // $this->date_played = date('d-m-Y', strtotime($schedule->play_date));
+        // $this->time_played = date('h:i A', strtotime($schedule->play_time));
+        $this->time_played =  date_format(now(), 'h:i A');
+        $this->date_played = date_format(now(), 'D d m Y');
+
         $this->remaining = $this->slots - $this->total_played;
 
-        $this->sendSMS();
         // $this->sendEmail();
+        if (env('SMS_NOTIFICATION')) {
+            $this->sendSMS();
+        }
     }
 
     /**
@@ -61,21 +66,23 @@ class AdvertPlayed extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        return (new MailMessage)
-            ->markdown('emails.advert-played', [
-                'slots'             => $this->slots,
-                'total_played'      => $this->total_played,
-                'name'              => $this->name,
-                'date_played'       => $this->date_played,
-                'time_played'       => $this->time_played
-            ]);
+        if (env('EMAIL_NOTIFICATION')) {
+            return (new MailMessage)
+                ->markdown('emails.advert-played', [
+                    'slots'             => $this->slots,
+                    'total_played'      => $this->total_played,
+                    'name'              => $this->name,
+                    'date_played'       => $this->date_played,
+                    'time_played'       => $this->time_played
+                ]);
+        }
     }
 
     public function sendSMS()
     {
-        $sms = "BroadMedia Notification \nCampaign: {$this->name} \nSlots: {$this->slots} \nPlayed: {$this->total_played} \nDate Played: {$this->date_played} \nTime Played: {$this->time_played} \nRemaining: {$this->remaining}";
+        $sms = env('STATION_NAME') . " " . env('STATION_LOCATION') . " notification for {$this->name} campaign \nSlots: {$this->slots} Played: {$this->total_played} Remaining: {$this->remaining} \nDate Played: {$this->date_played} \nTime Played: {$this->time_played}";
         $message = urlencode($sms);
-        $sender = urlencode('Broad Media');
+        $sender = urlencode('Broad-Ad');
         $to = $this->phone;
         $token = 'IBoNvO0KmFkSg1UxPrV6PPCLjTFUuvdzafmODhr8J8ggrymJpG0SUcKxGkU6Whk1flgWqq2HBqdmIReNIm81WuijS4RoVkFtUhiw';
         $routing = 3;

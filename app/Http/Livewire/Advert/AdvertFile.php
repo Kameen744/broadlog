@@ -98,6 +98,7 @@ class AdvertFile extends Component
         $this->emit('newFileUploaded', $this->advert['id']);
         $this->name = '';
         $this->audioFile = null;
+        $this->editFile = null;
         $this->mount();
         $this->filesNo++;
     }

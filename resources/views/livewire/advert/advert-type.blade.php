@@ -42,9 +42,9 @@
                             <div class="col-md-4">
                                 <button type="submit" class="btn btn-dark btn-sm">
                                     @if ($edit)
-                                        Update Advert Type
+                                        <i class="fas fa-edit"></i> Update Advert Type
                                         @else
-                                        Add Advert Type
+                                        <i class="fas fa-plus"></i> Add Advert Type
                                     @endif
                                 </button>
                             </div>
@@ -71,9 +71,9 @@
                   <tbody>
                     @foreach ($types as $type)
                     <tr>
-                        <td>{{ $type->id }}</td>
-                        <td>{{ $type->type }}</td>
-                        <td>
+                        <td class="py-1">{{ $type->id }}</td>
+                        <td class="py-1">{{ $type->type }}</td>
+                        <td class="py-1">
                             <button type="button" class="btn btn-primary btn-sm" wire:click="edit({{$type->id}})"
                                 data-toggle="modal" data-target="#modal-edit">
                                 <i class="fas fa-edit"></i> Edit

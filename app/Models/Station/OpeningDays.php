@@ -14,12 +14,12 @@ class OpeningDays extends Model
 
     public function formatTimeFrom()
     {
-        return Carbon::parse($this->time_from)->format('g:ia');
+        return Carbon::parse($this->time_from)->format('h:i A');
     }
 
     public function formatTimeTo()
     {
         // return Carbon::createFromFormat('g:ia', $this->time_to);
-        return Carbon::parse($this->time_to)->format('g:ia');
+        return Carbon::parse($this->time_to)->format('h:i A');
     }
 }

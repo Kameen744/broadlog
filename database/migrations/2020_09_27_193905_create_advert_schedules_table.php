@@ -20,6 +20,7 @@ class CreateAdvertSchedulesTable extends Migration
             $table->boolean('played')->default(0);
             $table->unsignedBigInteger('advert_id');
             $table->unsignedBigInteger('file_id');
+            $table->boolean('status')->default(1);
             $table->timestamps();
         });
 

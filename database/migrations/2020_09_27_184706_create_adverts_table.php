@@ -22,8 +22,9 @@ class CreateAdvertsTable extends Migration
             $table->bigInteger('duration');
             $table->integer('rate');
             $table->bigInteger('slots');
-            $table->bigInteger('discount');
-            $table->bigInteger('commision');
+            $table->bigInteger('discount')->nullable();
+            $table->bigInteger('commision')->nullable();
+            $table->bigInteger('paid');
             $table->date('start_date');
             $table->date('finish_date');
             $table->unsignedBigInteger('advert_type_id');

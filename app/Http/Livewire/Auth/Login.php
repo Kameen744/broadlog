@@ -13,7 +13,7 @@ class Login extends Component
         'password' => '',
     ];
 
-    public $remember = false;
+    public $remember = true;
 
     public function submit()
     {
@@ -44,6 +44,6 @@ class Login extends Component
 
         return view('livewire.auth.login')
             ->extends('layouts.app')
-                ->section('content');
+            ->section('content');
     }
 }

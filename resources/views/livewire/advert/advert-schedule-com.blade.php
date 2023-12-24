@@ -1,5 +1,5 @@
 <div class="modal fade" id="addScheduleModal" wire:ignore.self>
-    <div class="modal-dialog" style="max-width: 90%;" wire:ignore.self>
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 95%;" wire:ignore.self>
         <div class="modal-content" wire:ignore.self>
             <div class="modal-header py-1 px-3">
                 <h4 class="modal-title p-0">Advert Schedule</h4>
@@ -7,7 +7,7 @@
             <div class="modal-body p-0">
                 <div class="card-body" style="max-height: 85vh !important; overflow:auto;">
                    <div class="row">
-                    <div class="col-md-3">
+                    <div class="col">
                         <form @if ($edit)
                             wire:submit.prevent='update({{$edit}})'
                             @else
@@ -61,21 +61,23 @@
                                     </div>
                                 </div>
                             </div>
-                            <hr>
-                            <div class="row d-flex justify-content-between px-2">
+
+                            <div class="row d-flex justify-content-between px-2 my-2">
                                     @if ($edit)
                                             <button type="submit" class="btn btn-dark btn-sm ml-auto" id="updateAdvert">
-                                        Update Time
+                                                <i class="fas fa-edit"></i> Update Time
+                                            </button>
                                         @else
                                             <button type="submit" class="btn btn-dark btn-sm ml-auto" id="saveAdvert">
-                                        Set Time
+                                                <i class="fas fa-clock"></i> Set Time
+                                            </button>
                                     @endif
-                                </button>
+                                <hr>
                             </div>
                         </form>
                         <div class="row">
                             @if ($c_schedules)
-                            <div class="col-md-12">
+                            <div class="col-md-12" style="max-height: 400px; overflow-y: auto;">
                                 <table class="table">
                                     <thead>
                                         <tr>
@@ -87,16 +89,20 @@
                                     <tbody>
                                         @foreach ($c_schedules as $schedule)
                                             <tr>
-                                                <td>{{ $schedule->play_date }}</td>
-                                                <td>{{ date('h:i A', strtotime($schedule->play_time)) }}</td>
-                                                <td class=" d-flex justify-content-end">
+                                                <td class="py-1">{{ $schedule->play_date }}</td>
+                                                <td class="py-1">{{ date('h:i A', strtotime($schedule->play_time)) }}</td>
+                                                <td class=" d-flex justify-content-end py-1">
                                                     <div class="btn-group">
-                                                        <button type="button" class="btn btn-info btn-sm view-advert" wire:click="edit({{$schedule->id}})">
-                                                            <i class="fas fa-pen"></i> Edit
+                                                        <button type="button" class="btn {{ $schedule->status ? 'btn-info' : 'btn-warning' }} btn-sm view-advert"
+                                                        wire:click="updateActive({{$schedule->id}})">
+                                                            {{ $schedule->status ? 'Active ' : 'Inactive ' }}<input type="checkbox" {{ $schedule->status ? 'checked' : '' }}>
                                                         </button>
                                                         <button type="button" class="btn btn-primary btn-sm dropdown-toggle dropdown-icon" data-toggle="dropdown" aria-expanded="true">
                                                           <span class="sr-only">Action</span>
-                                                          <div class="dropdown-menu" role="menu" style="">
+                                                          <div class="dropdown-menu" role="menu">
+                                                            <a class="dropdown-item" href="" wire:click.prevent="edit({{$schedule->id}})">
+                                                                <i class="text-info fas fa-pen"></i> Edit
+                                                            </a>
                                                             <a class="dropdown-item" href="" wire:click.prevent="delete({{$schedule->id}})">
                                                                 <i class="text-danger fas fa-trash"></i> Delete
                                                             </a>
@@ -112,7 +118,7 @@
                             @endif
                         </div>
                     </div>
-                        <div class="col-md-8">
+                        <div class="col">
                             <table class="table table-responsive">
                                 <thead>
                                     @foreach ($callendar as $month)
@@ -140,7 +146,7 @@
                                 </thead>
                             </table>
                         </div>
-                        <div class="col-md-1">
+                        <div class="col-1" style="max-height: 650px; overflow-y: auto;">
                             @if ($all_date_schedules)
                                 <table class="table">
                                     <thead>
@@ -151,7 +157,7 @@
                                     <tbody>
                                         @foreach ($all_date_schedules as $schedule)
                                             <tr>
-                                                <td>{{ date('h:i A', strtotime($schedule->play_time)) }}</td>
+                                                <td class="py-1">{{ date('h:i A', strtotime($schedule->play_time)) }}</td>
                                             </tr>
                                         @endforeach
                                     </tbody>
